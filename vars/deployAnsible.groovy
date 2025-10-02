@@ -11,15 +11,13 @@ def call(String playbook, String targetList, String action = "default", String i
     withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'SSH_KEY')]) {
 
         // Run ephemeral Ansible container
-        sh """
-            docker run --rm -i \
-                -v \$PWD/playbooks:/ansible/playbooks \
-                -v \$SSH_KEY:/root/.ssh/id_rsa:ro \
-                cytopia/ansible:latest \
-                ansible-playbook /ansible/playbooks/${playbook} \
-                -i /ansible/playbooks/${inventory} \
-                --extra-vars "action=${action}" \
-                --limit "${targets}"
-        """
+       sh """
+docker exec ansible \
+  ansible-playbook /ansible/playbooks/install_ansible.yml \
+  -i /ansible/playbooks/inventory/hosts \
+  --extra-vars "action=${params.ACTION}" \
+  --limit "${params.SERVER_LIST}"
+"""
+
     }
 }
