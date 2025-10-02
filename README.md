@@ -1,0 +1,1 @@
+# jenkins_shared_libaries_for_docker
