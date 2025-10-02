@@ -10,14 +10,28 @@ def call(String playbook, String targetList, String action = "default", String i
     // Ensure SSH key is mounted from Jenkins credentials
     withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'SSH_KEY')]) {
 
-        // Run ephemeral Ansible container
-       sh """
-docker exec ansible \
-  ansible-playbook /ansible/playbooks/install_ansible.yml \
-  -i /ansible/playbooks/inventory/hosts \
-  --extra-vars "action=${params.ACTION}" \
-  --limit "${params.SERVER_LIST}"
-"""
+        // Check if the ansible container is running
+        def containerRunning = sh(
+            script: "docker ps -q -f name=ansible",
+            returnStdout: true
+        ).trim()
 
+        if (containerRunning == "") {
+            echo "Ansible container not running. Starting container..."
+            sh """
+            docker-compose up -d ansible
+            """
+        } else {
+            echo "Ansible container is already running: ${containerRunning}"
+        }
+
+        // Run the playbook inside the persistent Ansible container
+        sh """
+        docker exec ansible \
+          ansible-playbook /ansible/playbooks/${playbook} \
+          -i /ansible/playbooks/${inventory} \
+          --extra-vars "action=${action}" \
+          --limit "${targets}"
+        """
     }
 }
