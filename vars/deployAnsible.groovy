@@ -1,22 +1,21 @@
-def call(String playbook, String targetList, String action = "default") {
-    def targets = targetList.split(',').collect { it.trim() }.join('\n')
+def call(String playbook, String targetList, String action = "default", String inventory = "inventory/hosts") {
+    // Split the comma-separated targets and trim spaces
+    def targets = targetList.split(',').collect { it.trim() }.join(',')
 
     echo "Running Ansible Playbook: ${playbook}"
     echo "Action: ${action}"
     echo "Targets: ${targets}"
 
+    // Use credentials for SSH key
     withCredentials([sshUserPrivateKey(credentialsId: 'automation', keyFileVariable: 'SSH_KEY')]) {
-        // Generate dynamic inventory file in workspace
-        writeFile file: 'temp_inventory.ini', text: """
-        [dynamic_targets]
-        ${targetList.split(',').collect { it.trim() + " ansible_user=automation ansible_ssh_private_key_file=${SSH_KEY}" }.join('\n')}
-        """
-
-        // Run Ansible playbook directly inside Jenkins container
+        // Run Ansible playbook inside the ansible container using automation user
         sh """
-        ansible-playbook /ansible/playbooks/${playbook} \
-            -i temp_inventory.ini \
-            --extra-vars "action=${action}"
+        sudo -u automation docker exec ansible \
+            ansible-playbook /ansible/playbooks/${playbook} \
+            -i /ansible/playbooks/${inventory} \
+            --extra-vars "action=${action}" \
+            --limit "${targets}" \
+            --private-key ${SSH_KEY}
         """
     }
 }
