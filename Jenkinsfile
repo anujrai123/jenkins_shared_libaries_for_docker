@@ -21,7 +21,7 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
-                    deployAnsible("install_ansible.yml", params.TARGET_LIST, params.ACTION)
+                    deployAnsible("playbook.yml", params.TARGET_LIST, params.ACTION)
                 }
             }
         }
