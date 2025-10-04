@@ -5,7 +5,7 @@ def call(String playbook, String targetList, String action = "default", String i
     echo "Action: ${action}"
     echo "Targets: ${targets}"
 
-    withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+    withCredentials([sshUserPrivateKey(credentialsId: 'automation', keyFileVariable: 'SSH_KEY')]) {
         // Directly run playbook inside the persistent container (assumes it's already running)
         sh """
         docker exec ansible \
