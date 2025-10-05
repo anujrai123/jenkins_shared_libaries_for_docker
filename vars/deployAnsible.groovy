@@ -15,7 +15,7 @@ def call(String playbook, String targetList, String run_action = "default", Stri
         sh """
         docker exec ansible \
             ansible-playbook /ansible/playbooks/${playbook} \
-            -i /ansible/inventory/${inventoryPath} \
+            -i /ansible/${inventoryPath} \
             --extra-vars "run_action=${run_action}" \
             --limit "${targets.join(',')}" \
             --private-key ${SSH_KEY}
