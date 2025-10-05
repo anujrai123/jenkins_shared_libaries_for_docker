@@ -10,7 +10,7 @@ def call(String playbook, String targetList, String action = "default", String i
     withCredentials([sshUserPrivateKey(credentialsId: 'automation', keyFileVariable: 'SSH_KEY')]) {
         // Run Ansible playbook inside the ansible container using automation user
         sh """
-        sudo -u automation docker exec ansible \
+        docker exec ansible \
             ansible-playbook /ansible/playbooks/${playbook} \
             -i /ansible/playbooks/${inventory} \
             --extra-vars "action=${action}" \
