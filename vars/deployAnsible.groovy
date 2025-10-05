@@ -1,4 +1,4 @@
-def call(String playbook, String hostnamesParam, String run_action = "default", String inventoryPath = "ansible_playbooks/inventory/hosts") {
+def call(String playbook, String hostnamesParam, String run_action = "default", String inventoryPath = "/ansible/inventory/hosts") {
     def targets = hostnamesParam.split(',').collect { it.trim() }
     echo "Running Ansible Playbook: ${playbook}"
     echo "Action: ${run_action}"
